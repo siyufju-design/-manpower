@@ -92,6 +92,7 @@ const toMinutes = (time: string) => {
 const formatDuration = (start: string, end: string) => `${start} - ${end}`;
 
 export default function App() {
+  const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
   const [selectedDay, setSelectedDay] = useState<DayKey>("day1");
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [query, setQuery] = useState("");
@@ -251,21 +252,21 @@ export default function App() {
               key={time}
               style={{
                 display: "grid",
-                gridTemplateColumns: "190px 1fr",
-                gap: 18,
+                gridTemplateColumns: isMobile ? "120px 1fr" : "190px 1fr",
+                gap: isMobile ? 12 : 18,
                 alignItems: "start",
               }}
             >
-              <div style={{ position: "relative", minHeight: 160 }}>
-                <div style={{ fontSize: 30, fontWeight: 800, lineHeight: 1 }}>{time}</div>
+              <div style={{ position: "relative", minHeight: isMobile ? 120 : 160 }}>
+                <div style={{ fontSize: isMobile ? 22 : 30, fontWeight: 800, lineHeight: 1 }}>{time}</div>
                 <div style={{ fontSize: 13, color: "#8b8f93", marginTop: 8 }}>開始時間</div>
                 <div
                   style={{
                     position: "absolute",
-                    right: 12,
+                    right: isMobile ? 6 : 12,
                     top: 2,
-                    width: 18,
-                    height: 18,
+                    width: isMobile ? 12 : 18,
+                    height: isMobile ? 12 : 18,
                     borderRadius: 999,
                     background: "#233852",
                     boxShadow: "0 0 0 6px #e5e0d6",
@@ -275,10 +276,10 @@ export default function App() {
                   <div
                     style={{
                       position: "absolute",
-                      right: 20,
+                      right: isMobile ? 12 : 20,
                       top: 24,
                       bottom: -42,
-                      width: 3,
+                      width: isMobile ? 2 : 3,
                       borderRadius: 999,
                       background: "#c9cfda",
                     }}
@@ -295,7 +296,7 @@ export default function App() {
                 <div
                   style={{
                     display: "flex",
-                    gap: 18,
+                    gap: isMobile ? 12 : 18,
                     minWidth: items.length > 1 ? `${items.length * 360}px` : "unset",
                     alignItems: "stretch",
                   }}
@@ -307,13 +308,13 @@ export default function App() {
                         key={session.id}
                         onClick={() => setSelectedSession(session)}
                         style={{
-                          flex: "0 0 340px",
-                          minHeight: 170,
+                          flex: isMobile ? "0 0 260px" : "0 0 340px",
+                          minHeight: isMobile ? 140 : 170,
                           textAlign: "left",
                           background: "#f8f6f2",
                           border: "1px solid #d9d4cb",
                           borderRadius: 28,
-                          padding: 22,
+                          padding: isMobile ? 16 : 22,
                           cursor: "pointer",
                           boxShadow: "0 10px 20px rgba(107,116,130,0.08)",
                         }}
@@ -358,7 +359,7 @@ export default function App() {
                         </div>
 
                         <div style={{ fontSize: 15, color: "#7e857f", marginBottom: 10 }}>{session.track}</div>
-                        <div style={{ fontSize: 26, fontWeight: 800, lineHeight: 1.25, marginBottom: 12 }}>
+                        <div style={{ fontSize: isMobile ? 20 : 26, fontWeight: 800, lineHeight: 1.25, marginBottom: 12 }}>
                           {session.title}
                         </div>
                         <div style={{ color: "#6b7481", lineHeight: 1.7, fontSize: 15, marginBottom: 10 }}>
