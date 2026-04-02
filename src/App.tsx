@@ -20,6 +20,73 @@ const dayOptions = [
   { key: "0426" as const, label: "4/26（日）" },
 ];
 
+const groupDescriptions = [
+  {
+    name: "講者接待組",
+    items: [
+      "上午場 7:30、下午場 12:20／12:40 領取領據、講師費、交通費與回郵信封。",
+      "上午場 7:30、下午場 12:20／12:40 領取 QR code 與紙本簽到退紙，後續交由場規組協助張貼。",
+      "事先將講者 PPT、影片放至電腦。",
+      "隨時 follow 邀請場次講者與主持是否抵達，必要時帶領至現場。",
+      "場次結束後請講者簽領據，發放講師費、交通費或回郵信封，並說明後續處理方式。",
+    ],
+  },
+  {
+    name: "司儀",
+    items: [
+      "確認 PPT 無誤，播放串場 PPT 與音樂。",
+      "協助宣導觀眾往前坐，空檔時可支援貴賓接待。",
+      "主持流程：開場主持與後續活動說明。",
+      "負責遞麥克風給來賓致詞與觀眾提問。",
+      "頒獎典禮需遞獎狀、獎盃。",
+      "開幕式需引導歷屆理事拍合照。",
+    ],
+  },
+  {
+    name: "引導觀眾",
+    items: [
+      "專題、開幕式、頒獎典禮需引導觀眾入座。",
+      "國際會議廳兩條走道一人一邊，提醒觀眾往前、往中間坐。",
+      "提醒觀眾簽到／簽退：簽到 QR code 在場內 PPT／牆壁上，簽退在會場外。",
+      "頒獎典禮需引導獲獎來賓上台動線。",
+      "當座位達 9 成滿時，通知門口、報到處與同步教室。",
+      "準點開始時協助關閉入場門，並負責疏散觀眾。",
+    ],
+  },
+  {
+    name: "場控：專題＆開幕式",
+    items: [
+      "協助理監事接待與入座。",
+      "場次開始前先向講者與來賓說明會以大字報提醒時間，並確認是否需要其他提醒方式。",
+      "事前提醒主持人與主講人，結束前 3 分鐘可安排合影。",
+    ],
+  },
+  {
+    name: "場控：工作坊＆研討會",
+    items: [
+      "播放串場 PPT，黑板寫簽到退提醒。",
+      "場次開始前把提示牌依序放好：10 分鐘、5 分鐘、1 分鐘、時間到。",
+      "引導觀眾入座、提醒簽到退、遞麥克風給觀眾提問。",
+      "疏散觀眾並舉簽退提醒。",
+      "事前提醒主持人與主講人，結束前 3 分鐘可合影。",
+      "預放下一場 PPT，並更改或擦去黑板上的簽到退提醒。",
+    ],
+  },
+  {
+    name: "機動",
+    items: [
+      "協助開幕、專題演講、專題論壇、大師對談等重要場次的同步教室。",
+      "該時段隨時備戰，任何點位有人力需求時立即支援。",
+    ],
+  },
+  {
+    name: "暗樁",
+    items: [
+      "重要場次預備提問，若現場無人提問，暗樁需主動發問。",
+    ],
+  },
+];
+
 const duties: Duty[] = [
   {
     id: "0424-1500-1",
@@ -887,6 +954,8 @@ const toMinutes = (time: string) => {
 };
 
 export default function App() {
+  const [showGroupSection, setShowGroupSection] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState<string>(groupDescriptions[0].name);
   const [selectedDay, setSelectedDay] = useState<DayKey>("0425");
   const [query, setQuery] = useState("");
   const [pickedPerson, setPickedPerson] = useState("");
@@ -995,6 +1064,85 @@ export default function App() {
       </div>
 
       <main style={{ maxWidth: 1200, margin: "0 auto", padding: 20 }}>
+        <div
+          style={{
+            background: "#faf7f2",
+            border: "1px solid #ddd6cb",
+            borderRadius: 28,
+            padding: 20,
+            marginBottom: 24,
+          }}
+        >
+          <button
+            onClick={() => setShowGroupSection((v) => !v)}
+            style={{
+              width: "100%",
+              textAlign: "left",
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              padding: 0,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <div>
+              <div style={{ fontSize: 14, color: "#868c92", marginBottom: 8 }}>各小組工作內容</div>
+              <div style={{ fontSize: 30, fontWeight: 800 }}>小組任務說明</div>
+            </div>
+            <span style={{ fontSize: 28, color: "#7e858d", lineHeight: 1 }}>{showGroupSection ? "−" : "+"}</span>
+          </button>
+
+          {showGroupSection ? (
+            <div style={{ marginTop: 18 }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 16 }}>
+                {groupDescriptions.map((group) => (
+                  <button
+                    key={group.name}
+                    onClick={() => setSelectedGroup(group.name)}
+                    style={{
+                      border: "1px solid #d8d0c5",
+                      background: selectedGroup === group.name ? "#cad6d2" : "#f4efe8",
+                      color: "#445461",
+                      borderRadius: 999,
+                      padding: "8px 12px",
+                      cursor: "pointer",
+                      fontSize: 14,
+                    }}
+                  >
+                    {group.name}
+                  </button>
+                ))}
+              </div>
+
+              {groupDescriptions
+                .filter((group) => group.name === selectedGroup)
+                .map((group) => (
+                  <div
+                    key={group.name}
+                    style={{
+                      background: "#f4efe8",
+                      border: "1px solid #ddd6cb",
+                      borderRadius: 20,
+                      padding: 18,
+                      color: "#5b6875",
+                      lineHeight: 1.9,
+                    }}
+                  >
+                    <div style={{ fontSize: 20, fontWeight: 700, color: "#394a58", marginBottom: 10 }}>
+                      {group.name}
+                    </div>
+                    {group.items.map((item, index) => (
+                      <div key={index} style={{ marginTop: index === 0 ? 0 : 8 }}>
+                        {index + 1}. {item}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+            </div>
+          ) : null}
+        </div>
         <div
           style={{
             display: "grid",
