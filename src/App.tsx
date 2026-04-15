@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 
+// 定義日期與任務型別
 type DayKey = "0424" | "0425" | "0426";
 
 type Duty = {
@@ -20,931 +21,82 @@ const dayOptions = [
   { key: "0426" as const, label: "4/26（日）" },
 ];
 
+// 根據檔案「二、各組工作內容」整理 [cite: 12]
 const groupDescriptions = [
   {
     name: "講者接待組",
     items: [
-      "上午場 7:30、下午場 12:20／12:40 領取領據、講師費、交通費與回郵信封。",
-      "上午場 7:30、下午場 12:20／12:40 領取 QR code 與紙本簽到退紙，後續交由場規組協助張貼。",
-      "事先將講者 PPT、影片放至電腦。",
-      "隨時 follow 邀請場次講者與主持是否抵達，必要時帶領至現場。",
-      "場次結束後請講者簽領據，發放講師費、交通費或回郵信封，並說明後續處理方式。",
+      "領取物資：上午場 07:30 / 下午場 12:20 (D1) 12:40 (D2) 至秘書處領取講師費與領據 [cite: 16]。",
+      "前置作業：場次前 30 分鐘開檔 (PPT/影片)，並以 USB 備份 [cite: 17, 93]。",
+      "現場接待：確認第一排預留位，帶領講者入座並介紹環境 [cite: 18, 19, 20]。",
+      "行政收尾：場前請講者簽領據，拍照回傳群組相簿後交回秘書處 [cite: 21, 22]。",
     ],
   },
   {
     name: "司儀",
     items: [
-      "確認 PPT 無誤，播放串場 PPT 與音樂。",
-      "協助宣導觀眾往前坐，空檔時可支援貴賓接待。",
-      "主持流程：開場主持與後續活動說明。",
-      "負責遞麥克風給來賓致詞與觀眾提問。",
-      "頒獎典禮需遞獎狀、獎盃。",
-      "開幕式需引導歷屆理事拍合照。",
+      "事前演練：4/24 15:00-18:00 至一二樓會議廳演練講稿 [cite: 24]。",
+      "場控執行：場次前 30 分鐘測試設備，播放串場 PPT 與音樂 [cite: 25, 26]。",
+      "流程主持：負責開場、介紹活動、遞麥克風給致詞貴賓或提問觀眾 [cite: 27, 28, 36]。",
+      "頒獎典禮：引導拍合照並遞送獎狀與獎盃 [cite: 29, 73]。",
     ],
   },
   {
-    name: "引導觀眾",
+    name: "引導人員",
     items: [
-      "專題、開幕式、頒獎典禮需引導觀眾入座。",
-      "國際會議廳兩條走道一人一邊，提醒觀眾往前、往中間坐。",
-      "提醒觀眾簽到／簽退：簽到 QR code 在場內 PPT／牆壁上，簽退在會場外。",
-      "頒獎典禮需引導獲獎來賓上台動線。",
-      "當座位達 9 成滿時，通知門口、報到處與同步教室。",
-      "準點開始時協助關閉入場門，並負責疏散觀眾。",
+      "座位管控：國際會議廳兩側一人一邊，引導觀眾「往前、往中間坐」 [cite: 32, 47]。",
+      "簽到提醒：提醒簽到 QR code 位置；散場時舉牌提醒簽退 [cite: 32, 37, 49]。",
+      "滿座分流：第一天座位達 8 成滿時，於大群通知並引導觀眾往 DG308 同步教室 [cite: 34, 48]。",
+      "動線維護：準點關門，引導頒獎典禮獲獎來賓上台動線 [cite: 33, 35]。",
     ],
   },
   {
-    name: "場控：專題＆開幕式",
+    name: "場控",
     items: [
-      "協助理監事接待與入座。",
-      "場次開始前先向講者與來賓說明會以大字報提醒時間，並確認是否需要其他提醒方式。",
-      "事前提醒主持人與主講人，結束前 3 分鐘可安排合影。",
+      "物資領取：場次前 30 分鐘領取時間提示牌 (4個) 與簽退提示牌 [cite: 40, 51]。",
+      "時間管理：場前與講者確認提醒方式。提前 30-60 秒舉牌（倒數10/5/1分鐘、時間到） [cite: 42, 44, 52]。",
+      "研討會工作：需於黑板書寫簽到退提醒，並協助場復與更換 PPT [cite: 51, 54]。",
     ],
   },
   {
-    name: "場控：工作坊＆研討會",
+    name: "機動/暗樁",
     items: [
-      "播放串場 PPT，黑板寫簽到退提醒。",
-      "場次開始前把提示牌依序放好：10 分鐘、5 分鐘、1 分鐘、時間到。",
-      "引導觀眾入座、提醒簽到退、遞麥克風給觀眾提問。",
-      "疏散觀眾並舉簽退提醒。",
-      "事前提醒主持人與主講人，結束前 3 分鐘可合影。",
-      "預放下一場 PPT，並更改或擦去黑板上的簽到退提醒。",
-    ],
-  },
-  {
-    name: "機動",
-    items: [
-      "協助開幕、專題演講、專題論壇、大師對談等重要場次的同步教室。",
-      "該時段隨時備戰，任何點位有人力需求時立即支援。",
-    ],
-  },
-  {
-    name: "暗樁",
-    items: [
-      "重要場次預備提問，若現場無人提問，暗樁需主動發問。",
+      "機動任務：4/25 開幕式、Keynote 1 與法律課程期間，於 DG308 協助引導入座 [cite: 56]。",
+      "提問暗樁：重要場次若現場無人提問，需主動發問以避免冷場 [cite: 59]。",
     ],
   },
 ];
 
+// 完整排班資料 [cite: 61, 63, 65, 67, 69, 71, 73, 75]
 const duties: Duty[] = [
-  {
-    id: "0424-1500-1",
-    day: "0424",
-    start: "15:00",
-    end: "15:10",
-    location: "宗輔室集合",
-    people: ["思妤", "子熒"],
-    task: "點名、確認全員到齊",
-    detail: "確認全員報到，若有人未到先由機動遞補。",
-  },
-  {
-    id: "0424-1510-1",
-    day: "0424",
-    start: "15:10",
-    end: "15:20",
-    location: "宗輔室集合",
-    people: ["全體"],
-    task: "物資說明",
-    detail: "說明領據信封、提醒牌、場次單、原子筆、USB 的使用方式。",
-  },
-  {
-    id: "0424-1520-1",
-    day: "0424",
-    start: "15:20",
-    end: "15:35",
-    location: "宗輔室工作桌",
-    people: ["子熒", "思妤", "子裳", "宥伶", "詩璇", "采仔", "欣愉", "婧蓉"],
-    task: "整理所有物品放置位置",
-    detail: "將所有物品放於宗輔室桌上，確認放置位置與缺件。",
-  },
-  {
-    id: "0424-1535-1",
-    day: "0424",
-    start: "15:35",
-    end: "15:50",
-    location: "一樓國際會議廳",
-    people: ["碩誠", "慧玟", "珊淇", "少杰", "海茵", "智翔"],
-    task: "主場總巡檢",
-    detail: "確認主持台、講台、投影、麥克風、音源、網路、燈光與時間提示牌位置。",
-  },
-  {
-    id: "0424-1535-2",
-    day: "0424",
-    start: "15:35",
-    end: "15:50",
-    location: "二樓國際會議廳",
-    people: ["庭葰", "圓庭", "筠婷", "子媛", "子萱"],
-    task: "二樓會議廳巡檢",
-    detail: "確認主持位置、投影、燈光與提示牌位置。",
-  },
-  {
-    id: "0424-1535-3",
-    day: "0424",
-    start: "15:35",
-    end: "16:00",
-    location: "DG308",
-    people: ["岳哲", "瀚淳", "芷虹"],
-    task: "同步教室巡檢",
-    detail: "確認電腦、投影、網路與同步教室立牌。",
-  },
-  {
-    id: "0424-1550-1",
-    day: "0424",
-    start: "15:50",
-    end: "16:20",
-    location: "各工作坊／研討會教室",
-    people: ["可芸", "雅雯", "子媛", "宣亞", "詠棋", "依伶", "文伶", "敏瑄", "晏緹", "霖萱"],
-    task: "逐教室確認場佈",
-    detail: "確認桌椅、麥克風、簡報筆、場次單與簽到退提醒位置。",
-  },
-  {
-    id: "0424-1620-1",
-    day: "0424",
-    start: "16:20",
-    end: "16:40",
-    location: "各教室",
-    people: ["彥儒", "宥伶", "詩璇", "采仔", "欣愉", "婧蓉"],
-    task: "下載與備份簡報",
-    detail: "將各場簡報下載到桌面並保留 USB 備份。",
-  },
-  {
-    id: "0424-1640-1",
-    day: "0424",
-    start: "16:40",
-    end: "17:00",
-    location: "一樓國際會議廳",
-    people: ["碩誠", "慧玟", "珊淇", "少杰", "海茵"],
-    task: "演練開幕與專題流程",
-    detail: "演練主持開場、貴賓上台、Q&A 遞麥、時間提醒與簽退提醒。",
-  },
-  {
-    id: "0424-1640-2",
-    day: "0424",
-    start: "16:40",
-    end: "17:00",
-    location: "二樓國際會議廳",
-    people: ["庭葰", "圓庭", "筠婷", "子媛"],
-    task: "演練二樓流程",
-    detail: "演練主持開場、Q&A、時間控制與簽退提醒。",
-  },
-  {
-    id: "0424-1700-1",
-    day: "0424",
-    start: "17:00",
-    end: "17:20",
-    location: "宗輔室集合",
-    people: ["思妤", "子熒", "全體"],
-    task: "分區回報",
-    detail: "回報已完成、待確認與風險點。",
-  },
-  {
-    id: "0424-1745-1",
-    day: "0424",
-    start: "17:45",
-    end: "18:00",
-    location: "宗輔室收尾",
-    people: ["子裳", "彥儒", "宥伶", "詩璇", "采仔", "欣愉", "婧蓉"],
-    task: "物資分類標示",
-    detail: "將信封、提示牌、USB 標示隔日用途，桌面只留已分類物資。",
-  },
-  {
-    id: "0425-0715-1",
-    day: "0425",
-    start: "07:15",
-    end: "07:30",
-    location: "秘書處",
-    people: ["彥儒"],
-    task: "領取上午主場資料",
-    detail: "領上午場全部信封、領據、講師費、交通費與簽到退 QR code，按場次裝袋。",
-  },
-  {
-    id: "0425-0730-1",
-    day: "0425",
-    start: "07:30",
-    end: "08:20",
-    location: "一樓國際會議廳",
-    people: ["碩誠", "慧玟", "珊淇", "少杰", "海茵", "彥儒"],
-    task: "主場開場前總檢查",
-    detail: "確認 PPT、迎賓音樂、麥克風、貴賓名牌、提示牌與講者信封。",
-  },
-  {
-    id: "0425-0730-2",
-    day: "0425",
-    start: "07:30",
-    end: "08:20",
-    location: "DG308",
-    people: ["岳哲", "瀚淳"],
-    task: "同步教室準備",
-    detail: "開啟同步教室投影、音量、網路，08:20 可開放。",
-  },
-  {
-    id: "0425-0730-3",
-    day: "0425",
-    start: "07:30",
-    end: "08:20",
-    location: "二樓機動巡點",
-    people: ["子裳", "宥伶", "詩璇", "采仔", "欣愉", "婧蓉", "芷虹", "子萱", "智翔"],
-    task: "機動巡點",
-    detail: "巡各點檢查講者是否提早抵達、QR code 是否移位、教室門口可辨識。",
-  },
-  {
-    id: "0425-0820-1",
-    day: "0425",
-    start: "08:20",
-    end: "08:50",
-    location: "一樓國際會議廳",
-    people: ["少杰"],
-    task: "前門控流與帶位",
-    detail: "提醒簽到、引導往前往中間入座、觀察滿座率。",
-  },
-  {
-    id: "0425-0820-2",
-    day: "0425",
-    start: "08:20",
-    end: "08:50",
-    location: "一樓國際會議廳",
-    people: ["海茵"],
-    task: "貴賓帶位",
-    detail: "協助貴賓入座並說明時間提醒方式。",
-  },
-  {
-    id: "0425-0820-3",
-    day: "0425",
-    start: "08:20",
-    end: "08:50",
-    location: "一樓國際會議廳",
-    people: ["珊淇"],
-    task: "放置提示牌與合照確認",
-    detail: "放好提示牌並確認合照時點。",
-  },
-  {
-    id: "0425-0820-4",
-    day: "0425",
-    start: "08:20",
-    end: "08:50",
-    location: "一樓國際會議廳",
-    people: ["碩誠", "慧玟"],
-    task: "確認開幕 PPT 與試音",
-    detail: "確認開幕 PPT／影片、試音並於 08:50 準時開場。",
-  },
-  {
-    id: "0425-0820-5",
-    day: "0425",
-    start: "08:20",
-    end: "08:50",
-    location: "DG308",
-    people: ["岳哲", "瀚淳"],
-    task: "同步教室引導",
-    detail: "貼場次單、提醒此處為同步教室並指引簽到退 QR code。",
-  },
-  {
-    id: "0425-0850-1",
-    day: "0425",
-    start: "08:50",
-    end: "09:30",
-    location: "一樓國際會議廳",
-    people: ["碩誠", "慧玟"],
-    task: "主持開幕式",
-    detail: "主持開幕、串接貴賓致詞、控制節奏並準時收尾。",
-  },
-  {
-    id: "0425-0850-2",
-    day: "0425",
-    start: "08:50",
-    end: "09:30",
-    location: "一樓國際會議廳",
-    people: ["少杰", "海茵"],
-    task: "遞麥與合照動線",
-    detail: "遞麥、引導歷屆理事上台合照並維持走道淨空。",
-  },
-  {
-    id: "0425-0900-1",
-    day: "0425",
-    start: "09:00",
-    end: "09:30",
-    location: "講者休息區／主場",
-    people: ["彥儒"],
-    task: "接專題演講（一）講者",
-    detail: "接待講者、收最後版 PPT、確認主持到位。",
-  },
-  {
-    id: "0425-0930-1",
-    day: "0425",
-    start: "09:30",
-    end: "11:00",
-    location: "一樓國際會議廳",
-    people: ["碩誠", "慧玟"],
-    task: "主持專題演講（一）",
-    detail: "主持專題演講、Q&A 遞麥與收尾。",
-  },
-  {
-    id: "0425-0930-2",
-    day: "0425",
-    start: "09:30",
-    end: "11:00",
-    location: "一樓國際會議廳",
-    people: ["珊淇"],
-    task: "舉牌提醒時間",
-    detail: "依序舉 10／5／1 分鐘與時間到，提醒主持收束。",
-  },
-  {
-    id: "0425-0930-3",
-    day: "0425",
-    start: "09:30",
-    end: "11:00",
-    location: "一樓國際會議廳",
-    people: ["少杰", "海茵"],
-    task: "門口控流與 Q&A 遞麥",
-    detail: "提醒簽到退、控流、Q&A 遞麥，避免影響講者。",
-  },
-  {
-    id: "0425-0930-4",
-    day: "0425",
-    start: "09:30",
-    end: "11:00",
-    location: "DG308",
-    people: ["岳哲", "瀚淳"],
-    task: "同步教室控流",
-    detail: "提醒簽到退並記錄是否需加開座位。",
-  },
-  {
-    id: "0425-0930-5",
-    day: "0425",
-    start: "09:30",
-    end: "11:00",
-    location: "場邊待命",
-    people: ["芷虹", "子萱", "智翔"],
-    task: "機動補位",
-    detail: "隨時支援跑信封、拿電池、遞麥或帶位。",
-  },
-  {
-    id: "0425-1100-1",
-    day: "0425",
-    start: "11:00",
-    end: "11:20",
-    location: "一樓國際會議廳／講者出口",
-    people: ["彥儒"],
-    task: "講者簽領據回收",
-    detail: "請講者簽領據、放回信封並交回宗輔室。",
-  },
-  {
-    id: "0425-1100-2",
-    day: "0425",
-    start: "11:00",
-    end: "11:20",
-    location: "1、2樓大廳",
-    people: ["少杰", "海茵", "敬婷", "可芸", "雅雯", "宣亞", "詠棋", "依伶", "文伶", "敏瑄", "霖萱", "婧蓉", "欣愉", "晏緹"],
-    task: "茶敘導流",
-    detail: "提醒會員大會即將開始，引導觀眾不要逗留在門口。",
-  },
-  {
-    id: "0425-1120-1",
-    day: "0425",
-    start: "11:20",
-    end: "12:20",
-    location: "一樓國際會議廳",
-    people: ["思妤", "子熒"],
-    task: "監督會員大會流程",
-    detail: "確認議程組只做引導與秩序，不代替秘書處。",
-  },
-  {
-    id: "0425-1120-2",
-    day: "0425",
-    start: "11:20",
-    end: "12:20",
-    location: "一樓國際會議廳",
-    people: ["彥儒", "詩璇"],
-    task: "門口簽到說明",
-    detail: "解釋會員大會簽到方式，協助老會員就座。",
-  },
-  {
-    id: "0425-1120-3",
-    day: "0425",
-    start: "11:20",
-    end: "12:20",
-    location: "一樓國際會議廳",
-    people: ["惟謙"],
-    task: "主場時間與秩序提醒",
-    detail: "控制時間並照看第一排與走道。",
-  },
-  {
-    id: "0425-1120-4",
-    day: "0425",
-    start: "11:20",
-    end: "12:20",
-    location: "一樓國際會議廳",
-    people: ["敬婷", "少杰"],
-    task: "觀眾帶位與會後疏散",
-    detail: "協助帶位並於會後快速疏散觀眾。",
-  },
-  {
-    id: "0425-1220-1",
-    day: "0425",
-    start: "12:20",
-    end: "13:00",
-    location: "宗輔室",
-    people: ["思妤", "子熒", "彥儒", "宥伶", "子裳", "詩璇", "采仔", "欣愉", "婧蓉"],
-    task: "整理下午資料袋",
-    detail: "整理下午所有場次資料袋：領據信封、主持稿、PPT、教室清單與 QR code。",
-  },
-  {
-    id: "0425-1220-2",
-    day: "0425",
-    start: "12:20",
-    end: "13:00",
-    location: "一樓國際會議廳",
-    people: ["碩誠", "慧玟"],
-    task: "播放午餐串場 PPT 與轉場音樂",
-    detail: "提醒下午主場與 DG308 開放規則。",
-  },
-  {
-    id: "0425-1220-3",
-    day: "0425",
-    start: "12:20",
-    end: "13:00",
-    location: "二樓各教室",
-    people: ["可芸", "雅雯", "子媛", "筠婷", "晏緹", "霖萱", "宣亞", "詠棋", "依伶", "文伶", "敏瑄", "珊淇"],
-    task: "各教室下午場佈",
-    detail: "進行 14:00 場次場佈：QR code、提示牌、桌椅、投影與講台淨空。",
-  },
-  {
-    id: "0425-1300-1",
-    day: "0425",
-    start: "13:00",
-    end: "14:00",
-    location: "一樓國際會議廳",
-    people: ["碩誠", "慧玟", "思妤", "詩璇", "敬婷", "海茵", "惟謙", "彥儒", "芷虹", "瀚淳"],
-    task: "法律課程主場執行",
-    detail: "接待講者、主持、引導入座、DG308 同步與場控。",
-  },
-  {
-    id: "0425-1400-1",
-    day: "0425",
-    start: "14:00",
-    end: "15:30",
-    location: "二樓國際會議廳",
-    people: ["庭葰", "圓庭", "子媛", "筠婷", "子熒", "欣愉"],
-    task: "行動心理師工作坊",
-    detail: "主持、引導、場控與接待。",
-  },
-  {
-    id: "0425-1400-2",
-    day: "0425",
-    start: "14:00",
-    end: "15:30",
-    location: "MD169",
-    people: ["少杰", "晏緹", "彥儒", "婧蓉"],
-    task: "創傷工作坊",
-    detail: "少杰引導與遞麥；晏緹場控；彥儒、婧蓉場邊接待與領據。",
-  },
-  {
-    id: "0425-1400-3",
-    day: "0425",
-    start: "14:00",
-    end: "15:30",
-    location: "MD168",
-    people: ["岳哲", "霖萱", "采仔"],
-    task: "AI 難以（一）工作坊",
-    detail: "開檔、引導、時間控制與場後領據。",
-  },
-  {
-    id: "0425-1400-4",
-    day: "0425",
-    start: "14:00",
-    end: "15:30",
-    location: "MD167",
-    people: ["可芸", "宣亞", "子裳"],
-    task: "花蓮工作坊",
-    detail: "接講者、門口引導、提示牌與領據。",
-  },
-  {
-    id: "0425-1400-5",
-    day: "0425",
-    start: "14:00",
-    end: "15:30",
-    location: "MD203",
-    people: ["海茵", "詠棋", "宥伶"],
-    task: "到宅心理工作坊",
-    detail: "接待、門口簽到與場內引導。",
-  },
-  {
-    id: "0425-1400-6",
-    day: "0425",
-    start: "14:00",
-    end: "15:30",
-    location: "MD204",
-    people: ["雅雯", "文伶", "詩璇"],
-    task: "程序監理：角色",
-    detail: "場控、接待與場後收信封。",
-  },
-  {
-    id: "0425-1400-7",
-    day: "0425",
-    start: "14:00",
-    end: "15:30",
-    location: "MD215",
-    people: ["敬婷", "敏瑄", "欣愉"],
-    task: "CBME 現況研討會",
-    detail: "提醒簽到退、場內引導與場後收信封。",
-  },
-  {
-    id: "0425-1400-8",
-    day: "0425",
-    start: "14:00",
-    end: "15:30",
-    location: "MD214",
-    people: ["宥伶", "依伶", "婧蓉"],
-    task: "數位成癮研討會",
-    detail: "接待、時間控制與場內引導。",
-  },
-  {
-    id: "0425-1400-9",
-    day: "0425",
-    start: "14:00",
-    end: "15:30",
-    location: "MD213",
-    people: ["子媛", "珊淇", "采仔"],
-    task: "安寧研討會",
-    detail: "場控提醒時間並支援接待。",
-  },
-  {
-    id: "0425-1530-1",
-    day: "0425",
-    start: "15:30",
-    end: "15:50",
-    location: "各教室",
-    people: ["各教室原班人員"],
-    task: "場後固定四步",
-    detail: "提醒簽退 → 講者簽領據 → 領據回信封 → 換下一場 PPT／收教室。",
-  },
-  {
-    id: "0425-1550-1",
-    day: "0425",
-    start: "15:50",
-    end: "17:20",
-    location: "二樓國際會議廳",
-    people: ["庭葰", "圓庭", "子媛", "筠婷", "彥儒", "欣愉"],
-    task: "治療所工作坊",
-    detail: "主持、引導、場控與接待。",
-  },
-  {
-    id: "0425-1550-2",
-    day: "0425",
-    start: "15:50",
-    end: "17:20",
-    location: "MD169",
-    people: ["少杰", "晏緹", "采仔"],
-    task: "資訊操弄研討會",
-    detail: "引導、場控、接待與場後收信封。",
-  },
-  {
-    id: "0425-1550-3",
-    day: "0425",
-    start: "15:50",
-    end: "17:20",
-    location: "MD168",
-    people: ["岳哲", "霖萱"],
-    task: "AI 難以（二）工作坊",
-    detail: "引導與場控。",
-  },
-  {
-    id: "0425-1550-4",
-    day: "0425",
-    start: "15:50",
-    end: "17:20",
-    location: "MD167",
-    people: ["可芸", "宣亞", "子裳"],
-    task: "公共安全工作坊",
-    detail: "引導、場控與接待。",
-  },
-  {
-    id: "0425-1550-5",
-    day: "0425",
-    start: "15:50",
-    end: "17:20",
-    location: "MD203",
-    people: ["海茵", "詠棋", "宥伶"],
-    task: "人工智慧研討會",
-    detail: "引導、場控與接待。",
-  },
-  {
-    id: "0425-1550-6",
-    day: "0425",
-    start: "15:50",
-    end: "17:20",
-    location: "MD204",
-    people: ["雅雯", "文伶", "詩璇"],
-    task: "程序監理：實作",
-    detail: "引導、場控、接待與時間提醒。",
-  },
-  {
-    id: "0425-1550-7",
-    day: "0425",
-    start: "15:50",
-    end: "17:20",
-    location: "MD215",
-    people: ["敬婷", "敏瑄", "欣愉"],
-    task: "CBME：反思",
-    detail: "引導、場控與接待。",
-  },
-  {
-    id: "0425-1550-8",
-    day: "0425",
-    start: "15:50",
-    end: "17:20",
-    location: "MD214",
-    people: ["子媛", "依伶", "婧蓉"],
-    task: "多元場次（MD214）",
-    detail: "引導、場控與接待。",
-  },
-  {
-    id: "0425-1550-9",
-    day: "0425",
-    start: "15:50",
-    end: "17:20",
-    location: "MD213",
-    people: ["宥伶", "珊淇", "采仔"],
-    task: "多元場次（MD213）",
-    detail: "引導、場控與接待。",
-  },
-  {
-    id: "0425-1720-1",
-    day: "0425",
-    start: "17:20",
-    end: "17:50",
-    location: "宗輔室",
-    people: ["思妤", "子熒", "全體"],
-    task: "4/25 收尾",
-    detail: "回收所有領據信封、提示牌、主持稿、剩餘 QR code，核對未簽名名單。",
-  },
-  {
-    id: "0426-0800-1",
-    day: "0426",
-    start: "08:00",
-    end: "08:15",
-    location: "宗輔室",
-    people: ["子熒", "宥伶"],
-    task: "領上午場資料",
-    detail: "領上午場信封、領據、交通費與簽到退 QR code，按場次裝袋。",
-  },
-  {
-    id: "0426-0830-1",
-    day: "0426",
-    start: "08:30",
-    end: "09:00",
-    location: "一樓國際會議廳",
-    people: ["碩誠", "慧玟", "惟謙", "敬婷", "岳哲", "子熒", "欣愉"],
-    task: "大師對談主場前置",
-    detail: "開檔、試音、接講者、提示牌與引導。",
-  },
-  {
-    id: "0426-0830-2",
-    day: "0426",
-    start: "08:30",
-    end: "09:00",
-    location: "DG308",
-    people: ["彥儒", "采仔", "瀚淳"],
-    task: "同步教室前置",
-    detail: "開機、投影、門口說明與簽到退。",
-  },
-  {
-    id: "0426-0930-1",
-    day: "0426",
-    start: "09:30",
-    end: "10:30",
-    location: "一樓國際會議廳",
-    people: ["碩誠", "慧玟", "惟謙", "敬婷", "岳哲", "子熒", "欣愉"],
-    task: "大師對談進行",
-    detail: "主持、場控、引導、接待與場後收信封。",
-  },
-  {
-    id: "0426-1030-1",
-    day: "0426",
-    start: "10:30",
-    end: "10:50",
-    location: "1、2樓大廳",
-    people: ["彥儒", "珊淇", "筠婷", "可芸", "雅雯", "晏緹"],
-    task: "茶敘導流",
-    detail: "提醒 10:50 專題演講（三）即將開始。",
-  },
-  {
-    id: "0426-1020-1",
-    day: "0426",
-    start: "10:20",
-    end: "10:50",
-    location: "一樓國際會議廳",
-    people: ["宥伶", "詩璇", "惟謙", "敬婷", "岳哲", "彥儒", "采仔"],
-    task: "專題演講（三）場前",
-    detail: "接講者、開檔、提示牌、引導與 DG308 同步準備。",
-  },
-  {
-    id: "0426-1050-1",
-    day: "0426",
-    start: "10:50",
-    end: "12:20",
-    location: "一樓國際會議廳",
-    people: ["碩誠", "慧玟", "惟謙", "敬婷", "岳哲", "宥伶", "詩璇"],
-    task: "專題演講（三）進行",
-    detail: "主持、場控與收尾，並提醒簽退。",
-  },
-  {
-    id: "0426-1050-2",
-    day: "0426",
-    start: "10:50",
-    end: "12:20",
-    location: "DG308",
-    people: ["彥儒", "采仔"],
-    task: "同步教室運作",
-    detail: "維持 DG308 同步教室運作到主場結束。",
-  },
-  {
-    id: "0426-1220-1",
-    day: "0426",
-    start: "12:20",
-    end: "12:40",
-    location: "一樓國際會議廳",
-    people: ["碩誠", "慧玟", "少杰", "海茵", "思妤", "子熒"],
-    task: "頒獎典禮",
-    detail: "主持、受獎者動線、第一排整理與散場。",
-  },
-  {
-    id: "0426-1240-1",
-    day: "0426",
-    start: "12:40",
-    end: "13:30",
-    location: "宗輔室＋各教室",
-    people: ["思妤", "子熒", "宥伶", "子裳", "詩璇", "采仔", "欣愉", "婧蓉"],
-    task: "整理下午資料並分送",
-    detail: "整理下午所有場次信封與 QR code，分送到二樓論壇與各教室。",
-  },
-  {
-    id: "0426-1300-1",
-    day: "0426",
-    start: "13:00",
-    end: "13:30",
-    location: "二樓國際會議廳",
-    people: ["庭葰", "圓庭", "珊淇", "少杰", "宥伶", "婧蓉", "子裳"],
-    task: "專題論壇場前",
-    detail: "主持站位、接講者、開檔、提示牌與引導。",
-  },
-  {
-    id: "0426-1330-1",
-    day: "0426",
-    start: "13:30",
-    end: "15:00",
-    location: "二樓國際會議廳",
-    people: ["庭葰", "圓庭", "珊淇", "少杰", "宥伶", "婧蓉", "子裳"],
-    task: "專題論壇進行",
-    detail: "主持、場控、引導、遞麥與場後收信封。",
-  },
-  {
-    id: "0426-1330-2",
-    day: "0426",
-    start: "13:30",
-    end: "14:00",
-    location: "一樓國際會議廳",
-    people: ["碩誠", "慧玟", "惟謙", "敬婷", "岳哲", "子熒"],
-    task: "專題演講（四）場前",
-    detail: "主持、場控、引導與接講者。",
-  },
-  {
-    id: "0426-1400-1",
-    day: "0426",
-    start: "14:00",
-    end: "15:00",
-    location: "一樓國際會議廳",
-    people: ["碩誠", "慧玟", "惟謙", "敬婷", "岳哲", "子熒", "欣愉"],
-    task: "專題演講（四）進行",
-    detail: "主持、場控、接待與簽退提醒。",
-  },
-  {
-    id: "0426-1400-2",
-    day: "0426",
-    start: "14:00",
-    end: "15:00",
-    location: "DG308",
-    people: ["采仔", "瀚淳"],
-    task: "同步教室運作",
-    detail: "維持同步教室至主場散場。",
-  },
-  {
-    id: "0426-1500-1",
-    day: "0426",
-    start: "15:00",
-    end: "15:20",
-    location: "1、2樓大廳",
-    people: ["采仔", "欣愉"],
-    task: "茶敘導流",
-    detail: "提醒 15:20 分場開始，協助人流分流。",
-  },
-  {
-    id: "0426-1500-2",
-    day: "0426",
-    start: "15:00",
-    end: "15:20",
-    location: "MD215",
-    people: ["思妤", "詩璇", "晏緹", "少杰"],
-    task: "沙遊場前",
-    detail: "準備沙遊場前置並注意人數上限 40。",
-  },
-  {
-    id: "0426-1500-3",
-    day: "0426",
-    start: "15:00",
-    end: "15:20",
-    location: "MD169",
-    people: ["采仔", "霖萱", "岳哲"],
-    task: "社會情緒場前",
-    detail: "場前就緒、引導與提示牌確認。",
-  },
-  {
-    id: "0426-1500-4",
-    day: "0426",
-    start: "15:00",
-    end: "15:20",
-    location: "MD168",
-    people: ["子裳", "宣亞", "可芸"],
-    task: "問題放回關係場前",
-    detail: "接待講者、引導入座與設備確認。",
-  },
-  {
-    id: "0426-1500-5",
-    day: "0426",
-    start: "15:00",
-    end: "15:20",
-    location: "MD203",
-    people: ["宥伶", "詠棋", "海茵"],
-    task: "AI 時代存在焦慮場前",
-    detail: "接待、引導與設備確認。",
-  },
-  {
-    id: "0426-1500-6",
-    day: "0426",
-    start: "15:00",
-    end: "15:20",
-    location: "MD204",
-    people: ["詩璇", "文伶", "雅雯"],
-    task: "照會實務演練場前",
-    detail: "場控提示牌、接待與設備確認。",
-  },
-  {
-    id: "0426-1500-7",
-    day: "0426",
-    start: "15:00",
-    end: "15:20",
-    location: "MD214",
-    people: ["欣愉", "敏瑄", "敬婷"],
-    task: "詐病場前",
-    detail: "場控、接待與設備確認。",
-  },
-  {
-    id: "0426-1500-8",
-    day: "0426",
-    start: "15:00",
-    end: "15:20",
-    location: "MD213",
-    people: ["婧蓉", "依伶", "子媛"],
-    task: "實驗心理病理場前",
-    detail: "場控、接待與設備確認。",
-  },
-  {
-    id: "0426-1500-9",
-    day: "0426",
-    start: "15:00",
-    end: "15:20",
-    location: "MD212",
-    people: ["采仔", "筠婷", "子媛"],
-    task: "口頭報告場前",
-    detail: "場控、引導與設備確認。",
-  },
-  {
-    id: "0426-1520-1",
-    day: "0426",
-    start: "15:20",
-    end: "16:50",
-    location: "各平行場次教室",
-    people: ["各室原班人員"],
-    task: "平行場次進行",
-    detail: "引導、簽到退、遞麥、場控提示牌與領據信封流程。",
-  },
-  {
-    id: "0426-1650-1",
-    day: "0426",
-    start: "16:50",
-    end: "17:20",
-    location: "各教室 → 宗輔室",
-    people: ["全體"],
-    task: "最後收尾",
-    detail: "講者簽領據 → 領據回信封 → 信封回宗輔室 → 教室恢復原狀 → 提示牌回收。",
-  },
+  // 4/24 (五) 前置作業
+  { id: "0424-1", day: "0424", start: "15:00", end: "15:30", location: "宗輔室", people: ["碩誠", "慧玟", "庭葰", "圓庭", "惟謙", "珊淇", "宥伶", "詩璇", "婧蓉", "欣愉", "彥儒", "杏昀", "采伃", "曉琳"], task: "物資說明與分發", detail: "確認領據信封、提醒牌、USB、立牌等物資位置 [cite: 61]。", backup: "缺件由彥儒、宥伶協助補印 [cite: 61]。" },
+  { id: "0424-2", day: "0424", start: "15:30", end: "16:00", location: "一樓國際會議廳", people: ["碩誠", "慧玟", "惟謙", "珊淇"], task: "主場巡檢", detail: "測試投影、麥克風、Zoom 網路、燈光與試舉提示牌 [cite: 61]。" },
+  { id: "0424-3", day: "0424", start: "15:30", end: "16:00", location: "各教室", people: ["宥伶", "詩璇", "婧蓉", "欣愉", "彥儒", "杏昀", "采伃", "曉琳"], task: "PPT 下載與備份", detail: "下載雲端 PPT 並存入 USB 備份，檔名統一「日期_場次_講者」 [cite: 61]。" },
+  { id: "0424-4", day: "0424", start: "16:00", end: "17:00", location: "一、二樓會議廳", people: ["碩誠", "慧玟", "庭葰", "圓庭"], task: "主持流程演練", detail: "司儀演練開場、遞麥、結語流程，確認最終主持稿 [cite: 61]。" },
+  
+  // 4/25 (六) 
+  { id: "0425-1", day: "0425", start: "07:50", end: "08:00", location: "秘書處", people: ["彥儒"], task: "領取上午資料", detail: "領取專題（一）信封、講師費與領據 [cite: 63]。" },
+  { id: "0425-2", day: "0425", start: "08:20", end: "08:50", location: "一樓國際會議廳", people: ["少杰", "晏緹"], task: "開幕式入場引導", detail: "走道引導入座，滿 8 成通知大群。準點關門 [cite: 65]。" },
+  { id: "0425-3", day: "0425", start: "08:50", end: "09:27", location: "一樓國際會議廳", people: ["碩誠", "慧玟", "珊淇"], task: "開幕式主持與場控", detail: "控制致詞節奏。場控提前舉牌（倒數1分、時間到） [cite: 65]。" },
+  { id: "0425-4", day: "0425", start: "09:30", end: "11:00", location: "一樓國際會議廳", people: ["碩誠", "慧玟", "楊老師"], task: "專題演講（一）", detail: "主持將棒子交給楊老師。10:20 準備 Zoom 預錄影片連線 [cite: 65]。" },
+  { id: "0425-5", day: "0425", start: "13:00", end: "14:00", location: "一樓國際會議廳", people: ["碩誠", "慧玟", "惟謙", "詩璇", "敬婷", "品叡"], task: "專題演講（二）法律課程", detail: "吳院長演講場控與接待。同步教室 DG308 由彥儒、琬晴負責 [cite: 67]。" },
+  { id: "0425-6", day: "0425", start: "14:00", end: "15:30", location: "各研討會教室", people: ["全體"], task: "平行場次執行", detail: "各教室原班人馬執行：行動心理師 (2F)、創傷 (169)、AI (168) 等 [cite: 69]。" },
+  
+  // 4/26 (日)
+  { id: "0426-1", day: "0426", start: "08:30", end: "08:45", location: "秘書處", people: ["利亞", "宥伶"], task: "領取大師對談資料", detail: "領取上午場資料袋並按場次裝袋 [cite: 73]。" },
+  { id: "0426-2", day: "0426", start: "09:30", end: "10:30", location: "一樓國際會議廳", people: ["碩誠", "慧玟", "惟謙", "利亞", "欣愉", "敬婷", "岳哲"], task: "大師對談執行", detail: "主持 Q&A 與接待。暗樁孟熹、瀚淳預備提問 [cite: 73]。" },
+  { id: "0426-3", day: "0426", start: "12:20", end: "12:40", location: "一樓國際會議廳", people: ["碩誠", "慧玟", "庭葰", "圓庭", "少杰", "海茵"], task: "頒獎典禮主持", detail: "司儀主持，庭葰、圓庭遞獎狀；少杰、海茵引導動線 [cite: 73]。" },
+  { id: "0426-4", day: "0426", start: "13:30", end: "15:00", location: "二樓會議廳", people: ["庭葰", "圓庭", "珊淇", "少杰", "Nancy", "宥伶", "杏昀"], task: "專題論壇執行", detail: "接待林家如心理師。無人提問時由司儀啟動預設問題 [cite: 75]。" },
+  { id: "0426-5", day: "0426", start: "15:20", end: "16:50", location: "MD215", people: ["詩璇", "晏緹", "Nancy"], task: "沙遊工作坊", detail: "注意人數上限 40 人。場控場前確認時間提醒位置 [cite: 75]。" },
+  { id: "0426-6", day: "0426", start: "16:50", end: "17:20", location: "全校區", people: ["全體"], task: "總場復", detail: "資料回收宗輔室。組長清點點位淨空後方可離開 [cite: 75]。" },
 ];
 
 const allPeople = Array.from(
   new Set(
     duties
       .flatMap((d) => d.people)
-      .filter((name) => !["全體", "各教室原班人員"].includes(name))
+      .filter((name) => !["全體", "楊老師", "各教室原班人員"].includes(name))
   )
 ).sort((a, b) => a.localeCompare(b, "zh-Hant"));
 
@@ -960,374 +112,154 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [pickedPerson, setPickedPerson] = useState("");
 
-  const normalizedQuery = query.trim();
-  const activePerson = pickedPerson || normalizedQuery;
+  const activePerson = pickedPerson || query.trim();
 
+  // 當前日期過濾
   const visibleDuties = useMemo(() => {
     const dayItems = duties
       .filter((d) => d.day === selectedDay)
       .sort((a, b) => toMinutes(a.start) - toMinutes(b.start));
 
     if (!activePerson) return dayItems;
-
     return dayItems.filter((d) => d.people.some((name) => name.includes(activePerson)));
   }, [selectedDay, activePerson]);
 
-  const selectedPersonAllDays = useMemo(() => {
+  // 個人全日期排班查詢
+  const groupedAllDays = useMemo(() => {
     if (!activePerson) return [];
-    return duties
+    const map = new Map<DayKey, Duty[]>();
+    duties
       .filter((d) => d.people.some((name) => name.includes(activePerson)))
-      .sort((a, b) => {
-        if (a.day !== b.day) return a.day.localeCompare(b.day);
-        return toMinutes(a.start) - toMinutes(b.start);
+      .forEach((d) => {
+        if (!map.has(d.day)) map.set(d.day, []);
+        map.get(d.day)!.push(d);
       });
+    return dayOptions.map(day => ({
+      ...day,
+      items: (map.get(day.key) || []).sort((a, b) => toMinutes(a.start) - toMinutes(b.start))
+    }));
   }, [activePerson]);
 
-  const groupedAllDays = useMemo(() => {
-    const map = new Map<DayKey, Duty[]>();
-    selectedPersonAllDays.forEach((d) => {
-      if (!map.has(d.day)) map.set(d.day, []);
-      map.get(d.day)!.push(d);
-    });
-    return dayOptions.map((day) => ({
-      ...day,
-      items: map.get(day.key) ?? [],
-    }));
-  }, [selectedPersonAllDays]);
-
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#f4f1ec",
-        color: "#243447",
-        fontFamily:
-          'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-      }}
-    >
-      <div
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 20,
-          background: "rgba(244,241,236,0.95)",
-          backdropFilter: "blur(14px)",
-          borderBottom: "1px solid #ddd6cb",
-        }}
-      >
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "18px 20px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
-            <div
-              style={{
-                width: 46,
-                height: 46,
-                borderRadius: 18,
-                background: "#53677a",
-                color: "#f7f4ef",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: 700,
-                fontSize: 24,
-              }}
-            >
-              人
-            </div>
-            <div>
-              <div style={{ fontSize: 28, fontWeight: 800 }}>議程組個人任務查詢</div>
-              <div style={{ color: "#7e858d", fontSize: 15 }}>
-                搜尋姓名，就能看到該人員每個時段要做的事情。
-              </div>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            {dayOptions.map((day) => (
-              <button
+    <div style={{ minHeight: "100vh", background: "#f8f5f0", color: "#2d3a4b", fontFamily: "system-ui" }}>
+      {/* 標題欄 */}
+      <header style={{ position: "sticky", top: 0, zIndex: 10, background: "rgba(248, 245, 240, 0.9)", backdropFilter: "blur(10px)", borderBottom: "1px solid #e0d9cf", padding: "16px 20px" }}>
+        <div style={{ maxWidth: 900, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h1 style={{ fontSize: 22, margin: 0, fontWeight: 800 }}>議程組任務查詢 <span style={{ fontSize: 14, fontWeight: 400, color: "#7e858d" }}>2026 台臨心年會</span></h1>
+          <div style={{ display: "flex", gap: 8 }}>
+            {dayOptions.map(day => (
+              <button 
                 key={day.key}
                 onClick={() => setSelectedDay(day.key)}
-                style={{
-                  border: "1px solid #d8d0c5",
-                  background: selectedDay === day.key ? "#4f6475" : "#faf7f2",
-                  color: selectedDay === day.key ? "#faf7f2" : "#394a58",
-                  borderRadius: 16,
-                  padding: "10px 14px",
-                  cursor: "pointer",
-                  fontWeight: 700,
+                style={{ 
+                  padding: "6px 12px", borderRadius: 8, border: "1px solid #d8d0c5",
+                  background: selectedDay === day.key ? "#4a6278" : "#fff",
+                  color: selectedDay === day.key ? "#fff" : "#4a6278",
+                  cursor: "pointer", fontSize: 14, fontWeight: 600
                 }}
-              >
-                {day.label}
-              </button>
+              >{day.label}</button>
             ))}
           </div>
         </div>
-      </div>
+      </header>
 
-      <main style={{ maxWidth: 1200, margin: "0 auto", padding: 20 }}>
-        <div
-          style={{
-            background: "#faf7f2",
-            border: "1px solid #ddd6cb",
-            borderRadius: 28,
-            padding: 20,
-            marginBottom: 24,
-          }}
-        >
-          <button
-            onClick={() => setShowGroupSection((v) => !v)}
-            style={{
-              width: "100%",
-              textAlign: "left",
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              padding: 0,
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
+      <main style={{ maxWidth: 900, margin: "20px auto", padding: "0 20px" }}>
+        {/* 小組 SOP */}
+        <section style={{ background: "#fff", borderRadius: 16, border: "1px solid #e0d9cf", padding: 20, marginBottom: 20 }}>
+          <button 
+            onClick={() => setShowGroupSection(!showGroupSection)}
+            style={{ width: "100%", background: "none", border: "none", display: "flex", justifyContent: "space-between", fontSize: 18, fontWeight: 700, cursor: "pointer", color: "#2d3a4b" }}
           >
-            <div>
-              <div style={{ fontSize: 14, color: "#868c92", marginBottom: 8 }}>各小組工作內容</div>
-              <div style={{ fontSize: 30, fontWeight: 800 }}>小組任務說明</div>
-            </div>
-            <span style={{ fontSize: 28, color: "#7e858d", lineHeight: 1 }}>{showGroupSection ? "−" : "+"}</span>
+            📋 各小組工作 SOP {showGroupSection ? "▲" : "▼"}
           </button>
-
-          {showGroupSection ? (
-            <div style={{ marginTop: 18 }}>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 16 }}>
-                {groupDescriptions.map((group) => (
-                  <button
-                    key={group.name}
-                    onClick={() => setSelectedGroup(group.name)}
-                    style={{
-                      border: "1px solid #d8d0c5",
-                      background: selectedGroup === group.name ? "#cad6d2" : "#f4efe8",
-                      color: "#445461",
-                      borderRadius: 999,
-                      padding: "8px 12px",
-                      cursor: "pointer",
-                      fontSize: 14,
-                    }}
-                  >
-                    {group.name}
-                  </button>
-                ))}
-              </div>
-
-              {groupDescriptions
-                .filter((group) => group.name === selectedGroup)
-                .map((group) => (
-                  <div
-                    key={group.name}
-                    style={{
-                      background: "#f4efe8",
-                      border: "1px solid #ddd6cb",
-                      borderRadius: 20,
-                      padding: 18,
-                      color: "#5b6875",
-                      lineHeight: 1.9,
-                    }}
-                  >
-                    <div style={{ fontSize: 20, fontWeight: 700, color: "#394a58", marginBottom: 10 }}>
-                      {group.name}
-                    </div>
-                    {group.items.map((item, index) => (
-                      <div key={index} style={{ marginTop: index === 0 ? 0 : 8 }}>
-                        {index + 1}. {item}
-                      </div>
-                    ))}
-                  </div>
-                ))}
-            </div>
-          ) : null}
-        </div>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "minmax(280px, 380px) 1fr",
-            gap: 18,
-            marginBottom: 24,
-          }}
-        >
-          <div
-            style={{
-              background: "#faf7f2",
-              border: "1px solid #ddd6cb",
-              borderRadius: 24,
-              padding: 18,
-            }}
-          >
-            <div style={{ fontSize: 14, color: "#868c92", marginBottom: 10 }}>姓名搜尋</div>
-            <input
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                setPickedPerson("");
-              }}
-              placeholder="輸入人名，例如：彥儒、少杰、思妤"
-              style={{
-                width: "100%",
-                height: 46,
-                borderRadius: 14,
-                border: "1px solid #d6cec3",
-                padding: "0 14px",
-                boxSizing: "border-box",
-                fontSize: 15,
-                background: "#fffdf9",
-              }}
-            />
-            <div style={{ marginTop: 12, fontSize: 13, color: "#8a9097" }}>
-              目前查詢：{activePerson || "尚未指定人名，顯示本日全部任務"}
-            </div>
-          </div>
-
-          <div
-            style={{
-              background: "#faf7f2",
-              border: "1px solid #ddd6cb",
-              borderRadius: 24,
-              padding: 18,
-            }}
-          >
-            <div style={{ fontSize: 14, color: "#868c92", marginBottom: 12 }}>快速點選人員</div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 10, maxHeight: 150, overflowY: "auto" }}>
-              {allPeople.map((name) => (
-                <button
-                  key={name}
-                  onClick={() => {
-                    setPickedPerson(name);
-                    setQuery(name);
-                  }}
-                  style={{
-                    border: "1px solid #d8d0c5",
-                    background: activePerson === name ? "#cad6d2" : "#f4efe8",
-                    color: "#445461",
-                    borderRadius: 999,
-                    padding: "8px 12px",
-                    cursor: "pointer",
-                    fontSize: 14,
-                  }}
-                >
-                  {name}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {activePerson ? (
-          <div
-            style={{
-              background: "#faf7f2",
-              border: "1px solid #ddd6cb",
-              borderRadius: 28,
-              padding: 20,
-              marginBottom: 24,
-            }}
-          >
-            <div style={{ fontSize: 14, color: "#868c92", marginBottom: 8 }}>個人總覽</div>
-            <div style={{ fontSize: 30, fontWeight: 800, marginBottom: 16 }}>{activePerson}</div>
-            <div style={{ display: "grid", gap: 18 }}>
-              {groupedAllDays.map((group) => (
-                <div key={group.key}>
-                  <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 10 }}>{group.label}</div>
-                  {group.items.length === 0 ? (
-                    <div style={{ color: "#8a9097", fontSize: 14 }}>這一天沒有查到排班。</div>
-                  ) : (
-                    <div style={{ display: "grid", gap: 10 }}>
-                      {group.items.map((item) => (
-                        <div
-                          key={item.id}
-                          style={{
-                            background: "#f4efe8",
-                            border: "1px solid #ddd6cb",
-                            borderRadius: 18,
-                            padding: 14,
-                          }}
-                        >
-                          <div style={{ fontWeight: 700, marginBottom: 6 }}>
-                            {item.start} - {item.end}｜{item.location}
-                          </div>
-                          <div style={{ color: "#50606e", marginBottom: 4 }}>{item.task}</div>
-                          <div style={{ color: "#7d848b", fontSize: 14 }}>{item.detail}</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : null}
-
-        <div style={{ display: "grid", gap: 16 }}>
-          {visibleDuties.map((duty) => (
-            <div
-              key={duty.id}
-              style={{
-                background: "#faf7f2",
-                border: "1px solid #ddd6cb",
-                borderRadius: 26,
-                padding: 20,
-                boxShadow: "0 10px 20px rgba(95, 103, 111, 0.06)",
-              }}
-            >
+          {showGroupSection && (
+            <div style={{ marginTop: 15 }}>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
-                <span
-                  style={{
-                    background: "#d7e0db",
-                    color: "#4d6157",
-                    border: "1px solid #c4d0ca",
-                    borderRadius: 999,
-                    padding: "5px 10px",
-                    fontSize: 12,
-                  }}
-                >
-                  {duty.start} - {duty.end}
-                </span>
-                <span
-                  style={{
-                    background: "#ede7de",
-                    color: "#6c685f",
-                    border: "1px solid #dbd2c6",
-                    borderRadius: 999,
-                    padding: "5px 10px",
-                    fontSize: 12,
-                  }}
-                >
-                  {duty.location}
-                </span>
+                {groupDescriptions.map(g => (
+                  <button 
+                    key={g.name}
+                    onClick={() => setSelectedGroup(g.name)}
+                    style={{ padding: "4px 10px", borderRadius: 99, border: "1px solid #d8d0c5", background: selectedGroup === g.name ? "#cad6d2" : "#f1ede7", fontSize: 13, cursor: "pointer" }}
+                  >{g.name}</button>
+                ))}
               </div>
-
-              <div style={{ fontSize: 24, fontWeight: 800, marginBottom: 10 }}>{duty.task}</div>
-              <div style={{ color: "#52616f", lineHeight: 1.8, marginBottom: 12 }}>{duty.detail}</div>
-              <div style={{ color: "#7b8188", fontSize: 14, lineHeight: 1.8 }}>
-                人員：{duty.people.join("、")}
+              <div style={{ padding: 15, background: "#fbf9f6", borderRadius: 12, border: "1px solid #e0d9cf" }}>
+                <h3 style={{ margin: "0 0 10px 0", color: "#4a6278" }}>{selectedGroup} 職責</h3>
+                <ul style={{ paddingLeft: 20, lineHeight: 1.6, color: "#5a6a7a" }}>
+                  {groupDescriptions.find(g => g.name === selectedGroup)?.items.map((it, idx) => (
+                    <li key={idx} style={{ marginBottom: 6 }}>{it}</li>
+                  ))}
+                </ul>
               </div>
-              {duty.backup ? (
-                <div style={{ color: "#8a7c73", fontSize: 14, marginTop: 8 }}>備案：{duty.backup}</div>
-              ) : null}
             </div>
-          ))}
-        </div>
+          )}
+        </section>
 
-        {visibleDuties.length === 0 ? (
-          <div
-            style={{
-              marginTop: 20,
-              background: "#faf7f2",
-              border: "1px solid #ddd6cb",
-              borderRadius: 24,
-              padding: 26,
-              textAlign: "center",
-              color: "#7d838c",
-            }}
-          >
-            這個人名在目前日期沒有查到任務。
+        {/* 搜尋欄 */}
+        <section style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 15, marginBottom: 20 }}>
+          <div style={{ background: "#fff", padding: 15, borderRadius: 16, border: "1px solid #e0d9cf" }}>
+            <label style={{ display: "block", fontSize: 13, color: "#868c92", marginBottom: 8 }}>搜尋姓名</label>
+            <input 
+              value={query}
+              onChange={(e) => { setQuery(e.target.value); setPickedPerson(""); }}
+              placeholder="例：碩誠"
+              style={{ width: "100%", padding: "10px", borderRadius: 8, border: "1px solid #d8d0c5", fontSize: 15 }}
+            />
           </div>
-        ) : null}
+          <div style={{ background: "#fff", padding: 15, borderRadius: 16, border: "1px solid #e0d9cf" }}>
+            <label style={{ display: "block", fontSize: 13, color: "#868c92", marginBottom: 8 }}>快速選取人員</label>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, maxHeight: 80, overflowY: "auto" }}>
+              {allPeople.map(p => (
+                <button 
+                  key={p} 
+                  onClick={() => { setPickedPerson(p); setQuery(p); }}
+                  style={{ padding: "4px 8px", borderRadius: 6, border: "1px solid #d8d0c5", background: activePerson === p ? "#cad6d2" : "#f1ede7", fontSize: 12, cursor: "pointer" }}
+                >{p}</button>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 查詢結果 */}
+        {activePerson ? (
+          <section>
+            <h2 style={{ fontSize: 20, marginBottom: 15 }}>🔎 {activePerson} 的個人班表</h2>
+            {groupedAllDays.map(day => (
+              <div key={day.key} style={{ marginBottom: 15 }}>
+                <div style={{ fontWeight: 700, background: "#eee", padding: "4px 12px", borderRadius: 6, marginBottom: 10 }}>{day.label}</div>
+                {day.items.length === 0 ? (
+                  <div style={{ padding: "10px 12px", color: "#999", fontSize: 14 }}>本日無排班。</div>
+                ) : (
+                  day.items.map(item => (
+                    <div key={item.id} style={{ background: "#fff", padding: 15, borderRadius: 12, border: "1px solid #e0d9cf", marginBottom: 8 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                        <span style={{ fontWeight: 800, color: "#4a6278" }}>{item.start} - {item.end}</span>
+                        <span style={{ fontSize: 13, color: "#868c92" }}>📍 {item.location}</span>
+                      </div>
+                      <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>{item.task}</div>
+                      <div style={{ fontSize: 14, color: "#5a6a7a", lineHeight: 1.5 }}>{item.detail}</div>
+                    </div>
+                  ))
+                )}
+              </div>
+            ))}
+          </section>
+        ) : (
+          <section>
+            <h2 style={{ fontSize: 20, marginBottom: 15 }}>📅 {dayOptions.find(d => d.key === selectedDay)?.label} 全部行程</h2>
+            {visibleDuties.map(item => (
+              <div key={item.id} style={{ background: "#fff", padding: 15, borderRadius: 12, border: "1px solid #e0d9cf", marginBottom: 10 }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
+                  <span style={{ background: "#e8f0f7", color: "#3a6a9a", padding: "2px 8px", borderRadius: 4, fontSize: 12, fontWeight: 700 }}>{item.start} - {item.end}</span>
+                  <span style={{ background: "#f7f0e8", color: "#9a6a3a", padding: "2px 8px", borderRadius: 4, fontSize: 12, fontWeight: 700 }}>{item.location}</span>
+                </div>
+                <div style={{ fontWeight: 800, fontSize: 17, marginBottom: 4 }}>{item.task}</div>
+                <p style={{ margin: "0 0 8px 0", fontSize: 14, color: "#5a6a7a" }}>{item.detail}</p>
+                <div style={{ fontSize: 12, color: "#999" }}>人員：{item.people.join("、")}</div>
+              </div>
+            ))}
+          </section>
+        )}
       </main>
     </div>
   );
