@@ -2158,15 +2158,13 @@ export default function App() {
 
     if (!activePerson) return dayItems;
 
-    return dayItems.filter((d) => d.people.some((name) => name.includes(activePerson))||
-      d.people.includes("全體"));
+    return dayItems.filter((d) => d.people.includes(activePerson) || d.people.includes("全體"));
   }, [selectedDay, activePerson]);
 
   const selectedPersonAllDays = useMemo(() => {
     if (!activePerson) return [];
     return duties
-      .filter((d) => d.people.some((name) => name.includes(activePerson))||
-        d.people.includes("全體"))
+      .filter((d) => d.people.includes(activePerson) || d.people.includes("全體"))
       .sort((a, b) => {
         if (a.day !== b.day) return a.day.localeCompare(b.day);
         return toMinutes(a.start) - toMinutes(b.start);
