@@ -2373,6 +2373,13 @@ export default function App() {
               <div style={{ color: "#6b7280" }}>查無此人員的任務資料。</div>
             ) : (
               <div style={{ display: "grid", gap: 14 }}>
+                //試
+              <div style={{ color: "blue", fontWeight: 700, marginBottom: 12 }}>
+  groupedAllDays:
+  {groupedAllDays.map((group) =>
+    ` ${group.label}: ${group.items.map((d) => `[${d.start} ${d.task}｜${d.people.join("、")}]`).join(" | ")}`
+  )}
+</div>
                 {groupedAllDays.map((group) => (
                   <div key={group.key}>
                     <div style={{ fontWeight: 700, marginBottom: 6 }}>{group.label}</div>
@@ -2406,6 +2413,13 @@ export default function App() {
         )}
 
         <div style={{ display: "grid", gap: 14 }}>
+        //試
+        <div style={{ color: "red", fontWeight: 700, marginBottom: 12 }}>
+  activePerson: {activePerson || "空"}
+  <br />
+  visibleDuties:
+  {visibleDuties.map((d) => ` [${d.start} ${d.task}｜${d.people.join("、")}]`)}
+</div>
           {visibleDuties.length === 0 ? (
             <div
               style={{
